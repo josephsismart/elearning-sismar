@@ -50,17 +50,17 @@ function Home() {
         <h2 style={s.sectionTitle}>About the Teacher</h2>
         <div style={s.cards}>
           <div style={s.card}>
-            <div style={s.cardIcon}>\u{1F4DA}</div>
+            <div style={s.cardIcon}>&#128218;</div>
             <div style={s.cardTitle}>Teaching Philosophy</div>
             <div style={s.cardText}>Committed to nurturing every student's potential through inclusive, student-centered instruction that builds critical thinking and lifelong learning skills.</div>
           </div>
           <div style={s.card}>
-            <div style={s.cardIcon}>\u{1F3AF}</div>
+            <div style={s.cardIcon}>&#127919;</div>
             <div style={s.cardTitle}>Core Competencies</div>
             <div style={s.cardText}>Proficient in curriculum development, classroom management, differentiated instruction, and integrating technology in K-12 education settings.</div>
           </div>
           <div style={s.card}>
-            <div style={s.cardIcon}>\u{1F3EB}</div>
+            <div style={s.cardIcon}>&#127979;</div>
             <div style={s.cardTitle}>School Community</div>
             <div style={s.cardText}>Active contributor to school programs, co-curricular activities, and community outreach initiatives at Libertad National High School.</div>
           </div>
@@ -78,14 +78,15 @@ function Home() {
 
       <div style={s.contact}>
         <h2 style={{ ...s.sectionTitle, marginBottom: 16 }}>Contact Information</h2>
-        <p style={s.contactInfo}>\u{1F4E7} marie.michelle.sismar@deped.gov.ph</p>
-        <p style={s.contactInfo}>\u{1F3EB} Libertad National High School, Butuan City</p>
-        <p style={s.contactInfo}>\u{1F4CD} Libertad, Butuan City, Agusan del Norte</p>
+        <p style={s.contactInfo}>&#9993; marie.michelle.sismar@deped.gov.ph</p>
+        <p style={s.contactInfo}>&#127979; Libertad National High School, Butuan City</p>
+        <p style={s.contactInfo}>&#128205; Libertad, Butuan City, Agusan del Norte</p>
       </div>
 
-      <div style={s.footer}>\u00A9 2026 Marie Michelle L. Sismar | Libertad National High School</div>
+      <div style={s.footer}>&copy; 2026 Marie Michelle L. Sismar | Libertad National High School</div>
     </div>
   );
 }
 
 export default Home;
+
