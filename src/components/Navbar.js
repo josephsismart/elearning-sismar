@@ -1,7 +1,5 @@
 import React from 'react';
 
-const LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAJ2wjSAAABS1BMVEUVFhsKKDMgIywi3l8cHiUREhcIeIGaHC1ZG1AXG4nKzluMz8sMDspLjkyN01I0cjDwcAk0oFRAZCQasnJq4pqPTxsO/sK61K4YzGB0JubFEkXXazcq+imx/a2a3eHWSq');
-
 function Navbar({ current, onNav }) {
   const nav = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1a1a2e', padding: '0 24px', height: 56, position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' };
   const brand = { display: 'flex', alignItems: 'center', gap: 10, color: '#fff', fontWeight: 700, fontSize: 16 };
@@ -10,7 +8,7 @@ function Navbar({ current, onNav }) {
   return (
     <nav style={nav}>
       <div style={brand}>
-        <img src={LOGO} alt="LNHS" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+        <img src={process.env.PUBLIC_URL + '/images/logo.png'} alt="LNHS" style={{ width: 32, height: 32, borderRadius: '50%' }} />
         <span>Teacher Portal</span>
       </div>
       <div style={links}>
@@ -22,3 +20,4 @@ function Navbar({ current, onNav }) {
 }
 
 export default Navbar;
+
