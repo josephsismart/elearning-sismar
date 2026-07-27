@@ -1,50 +1,91 @@
 import React from 'react';
 
-const StatCard = ({num, label, type}) => {
-  const colors = {total:'#e3f2fd',present:'#e8f5e9',late:'#fff8e1',absent:'#ffebee'};
-  const textColors = {total:'#1565c0',present:'#2e7d32',late:'#f57f17',absent:'#c62828'};
-  return (
-    <div style={{flex:1,minWidth:120,padding:'.75rem 1rem',borderRadius:10,textAlign:'center',background:colors[type],color:textColors[type]}}>
-      <div style={{fontSize:'1.5rem',fontWeight:700}}>{num}</div>
-      <div style={{fontSize:'.75rem',fontWeight:600,textTransform:'uppercase'}}>{label}</div>
-    </div>
-  );
+const s = {
+  hero: { background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', color: '#fff', padding: '80px 20px 60px', textAlign: 'center' },
+  photoWrap: { width: 180, height: 180, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 24px', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' },
+  photo: { width: '100%', height: '100%', objectFit: 'cover' },
+  name: { fontSize: 32, fontWeight: 700, margin: '0 0 8px', fontFamily: "'Segoe UI', sans-serif" },
+  title: { fontSize: 16, opacity: 0.85, margin: '0 0 6px' },
+  school: { display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.1)', borderRadius: 20, padding: '6px 16px', marginTop: 12 },
+  logoSmall: { width: 28, height: 28, borderRadius: '50%' },
+  stats: { display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 32, background: '#0f3460', padding: '28px 20px', color: '#fff' },
+  stat: { textAlign: 'center', minWidth: 100 },
+  statNum: { fontSize: 28, fontWeight: 700, color: '#e94560' },
+  statLabel: { fontSize: 12, opacity: 0.7, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
+  section: { padding: '50px 20px', maxWidth: 900, margin: '0 auto' },
+  sectionTitle: { fontSize: 24, fontWeight: 700, color: '#1a1a2e', marginBottom: 24, textAlign: 'center' },
+  cards: { display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'center' },
+  card: { flex: '1 1 260px', maxWidth: 320, background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee' },
+  cardIcon: { fontSize: 28, marginBottom: 10 },
+  cardTitle: { fontSize: 16, fontWeight: 600, color: '#1a1a2e', marginBottom: 8 },
+  cardText: { fontSize: 14, color: '#555', lineHeight: 1.6 },
+  subjectGrid: { display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' },
+  subject: { background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', color: '#fff', borderRadius: 10, padding: '18px 24px', minWidth: 140, textAlign: 'center', fontSize: 14, fontWeight: 500 },
+  footer: { background: '#1a1a2e', color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '24px 20px', fontSize: 13 },
+  contact: { background: '#f0f4f8', padding: '40px 20px', textAlign: 'center' },
+  contactInfo: { fontSize: 15, color: '#333', marginBottom: 8 },
 };
 
-export default function Home() {
+function Home() {
   return (
-    <div>
-      <div style={{background:'linear-gradient(135deg,#1a3a5c 0%,#2a5a8a 50%,#2e7dbd 100%)',color:'#fff',padding:'3rem 2rem'}}>
-        <div style={{maxWidth:800,margin:'0 auto',display:'flex',alignItems:'center',gap:'2.5rem',flexWrap:'wrap',justifyContent:'center'}}>
-          <div style={{width:180,height:270,borderRadius:12,border:'4px solid rgba(255,255,255,.3)',boxShadow:'0 8px 32px rgba(0,0,0,.3)',background:'linear-gradient(135deg,#2a5a8a,#4a90c4)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',color:'#fff',flexShrink:0}}>
-            <div style={{fontSize:'3.5rem',fontWeight:700,lineHeight:1}}>MMS</div>
-            <div style={{fontSize:'.7rem',marginTop:8,opacity:.8,letterSpacing:1,textTransform:'uppercase'}}>Professional Teacher</div>
+    <div style={{ fontFamily: "'Segoe UI', Tahoma, sans-serif", background: '#f8f9fa', minHeight: '100vh' }}>
+      <div style={s.hero}>
+        <div style={s.photoWrap}><img src={process.env.PUBLIC_URL + '/images/michelle.jpg'} alt="Ms. Sismar" style={s.photo} /></div>
+        <h1 style={s.name}>Marie Michelle L. Sismar</h1>
+        <p style={s.title}>Licensed Professional Teacher</p>
+        <p style={s.title}>Libertad National High School, Butuan City</p>
+        <div style={s.school}>
+          <img src={process.env.PUBLIC_URL + '/images/logo.png'} alt="LNHS" style={s.logoSmall} />
+          <span style={{ fontSize: 13 }}>Department of Education - Division of Butuan City</span>
+        </div>
+      </div>
+
+      <div style={s.stats}>
+        {[['5','Advisory Sections'],['187','Students'],['6','Subjects'],['S.Y.','2026-2027']].map(([n,l])=>(
+          <div style={s.stat} key={l}><div style={s.statNum}>{n}</div><div style={s.statLabel}>{l}</div></div>
+        ))}
+      </div>
+
+      <div style={s.section}>
+        <h2 style={s.sectionTitle}>About the Teacher</h2>
+        <div style={s.cards}>
+          <div style={s.card}>
+            <div style={s.cardIcon}>\u{1F4DA}</div>
+            <div style={s.cardTitle}>Teaching Philosophy</div>
+            <div style={s.cardText}>Committed to nurturing every student's potential through inclusive, student-centered instruction that builds critical thinking and lifelong learning skills.</div>
           </div>
-          <div>
-            <h1 style={{fontSize:'2rem',fontWeight:700,marginBottom:'.25rem'}}>Marie Michelle L. Sismar</h1>
-            <div style={{fontSize:'1.1rem',opacity:.9,marginBottom:'.15rem'}}>Licensed Professional Teacher</div>
-            <div style={{fontSize:'.95rem',opacity:.75,display:'flex',alignItems:'center',gap:'.5rem',marginBottom:'1rem'}}>
-              <span style={{width:28,height:28,borderRadius:'50%',background:'#fff',color:'#1a3a5c',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'.6rem',fontWeight:700,flexShrink:0}}>LNHS</span>
-              Libertad National High School, Butuan City
-            </div>
-            <div style={{fontSize:'.95rem',opacity:.8,lineHeight:1.5,maxWidth:420}}>
-              Dedicated educator committed to nurturing young minds and fostering academic excellence in a supportive learning environment.
-            </div>
+          <div style={s.card}>
+            <div style={s.cardIcon}>\u{1F3AF}</div>
+            <div style={s.cardTitle}>Core Competencies</div>
+            <div style={s.cardText}>Proficient in curriculum development, classroom management, differentiated instruction, and integrating technology in K-12 education settings.</div>
+          </div>
+          <div style={s.card}>
+            <div style={s.cardIcon}>\u{1F3EB}</div>
+            <div style={s.cardTitle}>School Community</div>
+            <div style={s.cardText}>Active contributor to school programs, co-curricular activities, and community outreach initiatives at Libertad National High School.</div>
           </div>
         </div>
       </div>
-      <div style={{maxWidth:1100,margin:'0 auto',padding:'1.5rem'}}>
-        <h2 style={{fontSize:'1.35rem',fontWeight:700,color:'var(--primary)',marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}}>
-          <span style={{width:4,height:24,background:'var(--accent)',borderRadius:2,display:'inline-block'}}></span>
-          Quick Overview
-        </h2>
-        <div style={{display:'flex',gap:'1rem',flexWrap:'wrap'}}>
-          <StatCard num="5" label="Advisory Sections" type="total" />
-          <StatCard num="187" label="Total Students" type="present" />
-          <StatCard num="6" label="Subjects Taught" type="late" />
-          <StatCard num="S.Y. 2026–2027" label="School Year" type="absent" />
+
+      <div style={{ ...s.section, background: '#fff' }}>
+        <h2 style={s.sectionTitle}>Subjects Handled</h2>
+        <div style={s.subjectGrid}>
+          {['Mathematics','Science','English','Filipino','Araling Panlipunan','Values Education'].map(sub=>(
+            <div style={s.subject} key={sub}>{sub}</div>
+          ))}
         </div>
       </div>
+
+      <div style={s.contact}>
+        <h2 style={{ ...s.sectionTitle, marginBottom: 16 }}>Contact Information</h2>
+        <p style={s.contactInfo}>\u{1F4E7} marie.michelle.sismar@deped.gov.ph</p>
+        <p style={s.contactInfo}>\u{1F3EB} Libertad National High School, Butuan City</p>
+        <p style={s.contactInfo}>\u{1F4CD} Libertad, Butuan City, Agusan del Norte</p>
+      </div>
+
+      <div style={s.footer}>\u00A9 2026 Marie Michelle L. Sismar | Libertad National High School</div>
     </div>
   );
 }
+
+export default Home;
