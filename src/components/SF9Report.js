@@ -19,6 +19,20 @@ const ps = {
   commentBox: { border: '1px solid #000', padding: 4, minHeight: 30, fontSize: '8pt', margin: '2px 0' },
 };
 
+const ws = {
+  wrap: { minHeight: '100vh', background: '#f5f7fa', padding: '32px 16px', fontFamily: 'Poppins, sans-serif', color: '#333' },
+  container: { maxWidth: 1100, margin: '0 auto' },
+  title: { fontSize: 28, fontWeight: 700, marginBottom: 8, textAlign: 'center', color: '#1a3a5c' },
+  sub: { textAlign: 'center', color: '#888', fontSize: 14, marginBottom: 16 },
+  controls: { display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 },
+  select: { padding: '8px 12px', borderRadius: 8, border: '1px solid #d0d5dd', background: '#fff', color: '#333', fontSize: 14, fontFamily: 'Poppins, sans-serif' },
+  btn: { padding: '8px 18px', borderRadius: 8, border: 'none', fontSize: 14, cursor: 'pointer', fontFamily: 'Poppins, sans-serif', fontWeight: 600 },
+  btnPrimary: { background: '#e94560', color: '#fff' },
+  btnOutline: { background: '#fff', color: '#555', border: '1px solid #d0d5dd' },
+  btnActive: { background: '#e94560', color: '#fff', border: 'none' },
+  empty: { textAlign: 'center', padding: 40, color: '#999', fontSize: 15 },
+};
+
 function SF9Report({ onNav }) {
   const [syId, setSyId] = useState(null);
   const [sy, setSy] = useState(null);
@@ -47,9 +61,7 @@ function SF9Report({ onNav }) {
   useEffect(reload, []);
 
   if (!syId) return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)', padding: '32px 16px', fontFamily: 'Poppins, sans-serif', color: '#fff', textAlign: 'center', paddingTop: 80 }}>
-      No school year selected. <button style={{ padding: '10px 24px', borderRadius: 8, border: 'none', fontWeight: 600, background: '#e94560', color: '#fff', cursor: 'pointer', marginLeft: 8 }} onClick={() => onNav('schoolyear')}>Go to School Years</button>
-    </div>
+    <div style={ws.wrap}><div style={ws.container}><div style={ws.empty}><i className="fas fa-folder-open" style={{ fontSize: 32, color: '#ccc', display: 'block', marginBottom: 12 }} />No school year selected. <button style={{ ...ws.btn, ...ws.btnPrimary, marginLeft: 8 }} onClick={() => onNav('schoolyear')}>Go to School Years</button></div></div></div>
   );
 
   const handlePrint = () => {
@@ -75,22 +87,22 @@ function SF9Report({ onNav }) {
   const studentsToRender = selectedId ? students.filter(x => x.id === selectedId) : students;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)', padding: '32px 16px', fontFamily: 'Poppins, sans-serif', color: '#fff' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>SF9 Report Card</h1>
-        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 16 }}>SY {sy?.name} — Grade {sy?.gradeLevel} - {sy?.section}</p>
+    <div style={ws.wrap}>
+      <div style={ws.container}>
+        <h1 style={ws.title}><i className="fas fa-file-lines" style={{ color: '#e94560', marginRight: 10 }} />SF9 Report Card</h1>
+        <p style={ws.sub}>SY {sy?.name} â Grade {sy?.gradeLevel} - {sy?.section}</p>
 
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-          <select style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 14, fontFamily: 'Poppins, sans-serif' }}
-            value={selectedId || ''} onChange={e => setSelectedId(e.target.value || null)}>
+        <div style={ws.controls}>
+          <select style={ws.select} value={selectedId || ''} onChange={e => setSelectedId(e.target.value || null)}>
             <option value="">All Students ({students.length})</option>
             {students.map(st => <option key={st.id} value={st.id}>{st.lastName}, {st.firstName}</option>)}
           </select>
-          <button onClick={() => setEditComments(!editComments)} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: editComments ? '#e94560' : 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 14, cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}>
+          <button onClick={() => setEditComments(!editComments)} style={{ ...ws.btn, ...(editComments ? ws.btnActive : ws.btnOutline) }}>
+            <i className={editComments ? 'fas fa-check' : 'fas fa-pen'} style={{ marginRight: 6 }} />
             {editComments ? 'Done Editing' : 'Edit Comments'}
           </button>
-          <button onClick={handlePrint} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#e94560', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}>
-            Print
+          <button onClick={handlePrint} style={{ ...ws.btn, ...ws.btnPrimary }}>
+            <i className="fas fa-print" style={{ marginRight: 6 }} />Print
           </button>
         </div>
 
@@ -112,11 +124,10 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
 
   return (
     <div className="page" style={ps.page}>
-      {/* Header */}
       <div style={ps.header}>
         <p style={ps.headerLine}>Republic of the Philippines</p>
         <p style={ps.headerLine}>Department of Education</p>
-        <p style={ps.headerLine}>{sy?.region || 'Region'} — {sy?.division || 'Division'}</p>
+        <p style={ps.headerLine}>{sy?.region || 'Region'} â {sy?.division || 'Division'}</p>
         <p style={ps.headerLine}>{sy?.district || 'District'}</p>
         <p style={ps.schoolName}>{sy?.schoolName || 'School Name'}</p>
         <p style={{ ...ps.headerLine, fontSize: '7pt' }}>School ID: {sy?.schoolId || '______'}</p>
@@ -124,7 +135,6 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
 
       <div style={ps.formTitle}>SCHOOL FORM 9 (SF9) LEARNER'S PROGRESS REPORT CARD</div>
 
-      {/* Student Info */}
       <div style={{ border: '1px solid #000', padding: 6, marginBottom: 6 }}>
         <div style={ps.infoRow}>
           <div style={ps.infoItem}><span style={ps.label}>Name:</span> {st.lastName}, {st.firstName} {st.middleName || ''}</div>
@@ -139,7 +149,6 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
         </div>
       </div>
 
-      {/* Attendance */}
       <div style={ps.sectionTitle}>REPORT ON ATTENDANCE</div>
       <table style={ps.table}>
         <thead>
@@ -171,7 +180,6 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
         </tbody>
       </table>
 
-      {/* Grades */}
       <div style={ps.sectionTitle}>LEARNER'S PROGRESS REPORT</div>
       <table style={ps.table}>
         <thead>
@@ -217,7 +225,6 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
         </tbody>
       </table>
 
-      {/* Teacher Comments */}
       <div style={ps.sectionTitle}>TEACHER'S COMMENTS</div>
       {TERMS.map(t => (
         <div key={t} style={{ marginBottom: 4 }}>
@@ -231,7 +238,6 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
         </div>
       ))}
 
-      {/* Signatures */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: '8pt' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={ps.sigLine}>{sy?.adviser || ''}</div>
