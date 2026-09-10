@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getSY, getCurrentSY, getStudents, getGrades, getAttendance, getClassDays, getComments, setComment, computeMapehTerm, computeFinalGrade, computeGeneralAvg, computeAge, SUBJECTS_G4_10, MAPEH_SUBS, MONTHS, TERMS } from '../services/dataService';
 
+const DESCRIPTORS = [
+  { range: '90-100', descriptor: 'Outstanding' },
+  { range: '85-89', descriptor: 'Very Satisfactory' },
+  { range: '80-84', descriptor: 'Satisfactory' },
+  { range: '75-79', descriptor: 'Fairly Satisfactory' },
+  { range: 'Below 75', descriptor: 'Did Not Meet Expectations' },
+];
+
 const ps = {
-  page: { width: '210mm', minHeight: '297mm', margin: '0 auto', padding: '12mm 14mm', background: '#fff', color: '#000', fontSize: '9pt', fontFamily: 'Arial, sans-serif', boxSizing: 'border-box', pageBreakAfter: 'always' },
-  header: { textAlign: 'center', marginBottom: 8 },
-  headerLine: { fontSize: '8pt', margin: 0, lineHeight: 1.4 },
-  schoolName: { fontSize: '12pt', fontWeight: 700, margin: '4px 0' },
-  formTitle: { fontSize: '11pt', fontWeight: 700, margin: '8px 0 4px', textAlign: 'center' },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: '8pt' },
-  th: { border: '1px solid #000', padding: '3px 4px', fontWeight: 700, textAlign: 'center', fontSize: '7pt', background: '#f0f0f0' },
-  td: { border: '1px solid #000', padding: '2px 4px', textAlign: 'center', fontSize: '8pt' },
-  tdLeft: { border: '1px solid #000', padding: '2px 4px', textAlign: 'left', fontSize: '8pt' },
-  infoRow: { display: 'flex', justifyContent: 'space-between', fontSize: '8pt', marginBottom: 2, flexWrap: 'wrap', gap: 4 },
-  infoItem: { display: 'flex', gap: 4 },
-  label: { fontWeight: 700 },
-  sectionTitle: { fontWeight: 700, fontSize: '9pt', margin: '8px 0 4px', borderBottom: '1px solid #000', paddingBottom: 2 },
-  sigLine: { borderBottom: '1px solid #000', width: 160, display: 'inline-block', marginLeft: 6 },
-  commentBox: { border: '1px solid #000', padding: 4, minHeight: 30, fontSize: '8pt', margin: '2px 0' },
+  page: { width: '210mm', minHeight: '297mm', margin: '0 auto', padding: '10mm 12mm', background: '#fff', color: '#000', fontSize: '8pt', fontFamily: 'Arial, sans-serif', boxSizing: 'border-box', pageBreakAfter: 'always' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: '7.5pt' },
+  th: { border: '1px solid #000', padding: '2px 3px', fontWeight: 700, textAlign: 'center', fontSize: '6.5pt', background: '#f5f5f5' },
+  td: { border: '1px solid #000', padding: '1px 3px', textAlign: 'center', fontSize: '7.5pt' },
+  tdLeft: { border: '1px solid #000', padding: '1px 4px', textAlign: 'left', fontSize: '7.5pt' },
+  label: { fontWeight: 700, fontSize: '7pt' },
+  sigLine: { borderBottom: '1px solid #000', width: 140, display: 'inline-block', marginLeft: 4 },
 };
 
 const ws = {
@@ -67,12 +67,12 @@ function SF9Report({ onNav }) {
   const handlePrint = () => {
     const content = printRef.current;
     const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html><html><head><title>SF9 Report Card</title><style>
-      @page { size: A4; margin: 8mm; }
+    win.document.write(`<!DOCTYPE html><html><head><title>SF9 Report Card - ${sy?.name || ''}</title><style>
+      @page { size: A4 landscape; margin: 6mm; }
       @media print { body { margin:0; } .page { page-break-after: always; } .page:last-child { page-break-after: auto; } }
-      body { font-family: Arial, sans-serif; font-size: 9pt; color: #000; }
-      table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #000; padding: 2px 4px; }
-      th { background: #f0f0f0; font-size: 7pt; } .no-print { display: none; }
+      body { font-family: Arial, sans-serif; font-size: 8pt; color: #000; margin: 0; }
+      table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #000; padding: 2px 3px; }
+      th { background: #f5f5f5; font-size: 6.5pt; } .no-print { display: none; }
     </style></head><body>${content.innerHTML}</body></html>`);
     win.document.close();
     win.focus();
@@ -90,7 +90,7 @@ function SF9Report({ onNav }) {
     <div style={ws.wrap}>
       <div style={ws.container}>
         <h1 style={ws.title}><i className="fas fa-file-lines" style={{ color: '#e94560', marginRight: 10 }} />SF9 Report Card</h1>
-        <p style={ws.sub}>SY {sy?.name}{' \u2014 '}Grade {sy?.gradeLevel} - {sy?.section}</p>
+        <p style={ws.sub}>SY {sy?.name} {'â'} Grade {sy?.gradeLevel} - {sy?.section}</p>
 
         <div style={ws.controls}>
           <select style={ws.select} value={selectedId || ''} onChange={e => setSelectedId(e.target.value || null)}>
@@ -121,135 +121,216 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
   const genAvg = computeGeneralAvg(grades);
   const totalPresent = MONTHS.reduce((sum, m) => sum + (attendance[m] || 0), 0);
   const totalClassDays = MONTHS.reduce((sum, m) => sum + (classDays[m] || 0), 0);
+  const totalAbsent = totalClassDays - totalPresent;
 
   return (
-    <div className="page" style={ps.page}>
-      <div style={ps.header}>
-        <p style={ps.headerLine}>Republic of the Philippines</p>
-        <p style={ps.headerLine}>Department of Education</p>
-        <p style={ps.headerLine}>{sy?.region || 'Region'}{' \u2014 '}{sy?.division || 'Division'}</p>
-        <p style={ps.headerLine}>{sy?.district || 'District'}</p>
-        <p style={ps.schoolName}>{sy?.schoolName || 'School Name'}</p>
-        <p style={{ ...ps.headerLine, fontSize: '7pt' }}>School ID: {sy?.schoolId || '______'}</p>
-      </div>
-
-      <div style={ps.formTitle}>SCHOOL FORM 9 (SF9) LEARNER'S PROGRESS REPORT CARD</div>
-
-      <div style={{ border: '1px solid #000', padding: 6, marginBottom: 6 }}>
-        <div style={ps.infoRow}>
-          <div style={ps.infoItem}><span style={ps.label}>Name:</span> {st.lastName}, {st.firstName} {st.middleName || ''}</div>
-          <div style={ps.infoItem}><span style={ps.label}>Age:</span> {computeAge(st.birthdate)}</div>
-          <div style={ps.infoItem}><span style={ps.label}>Sex:</span> {st.sex === 'M' ? 'Male' : 'Female'}</div>
+    <div className="page" style={{ ...ps.page, display: 'flex', gap: '8mm' }}>
+      {/* LEFT SIDE - Student Info + Grades + Descriptors */}
+      <div style={{ flex: '1 1 50%', minWidth: 0 }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 6 }}>
+          <p style={{ margin: 0, fontSize: '7pt', lineHeight: 1.3 }}>Republic of the Philippines</p>
+          <p style={{ margin: 0, fontSize: '7pt', fontWeight: 700 }}>Department of Education</p>
+          <p style={{ margin: '3px 0', fontSize: '10pt', fontWeight: 700 }}>LEARNER'S PROGRESS REPORT CARD</p>
+          <p style={{ margin: 0, fontSize: '7pt' }}>(DepEd Order No. 8, s. 2015)</p>
         </div>
-        <div style={ps.infoRow}>
-          <div style={ps.infoItem}><span style={ps.label}>LRN:</span> {st.lrn || '____________'}</div>
-          <div style={ps.infoItem}><span style={ps.label}>Grade:</span> {sy?.gradeLevel}</div>
-          <div style={ps.infoItem}><span style={ps.label}>Section:</span> {sy?.section}</div>
-          <div style={ps.infoItem}><span style={ps.label}>School Year:</span> {sy?.name}</div>
+
+        {/* Student Info */}
+        <div style={{ border: '1px solid #000', padding: '4px 6px', marginBottom: 6, fontSize: '7.5pt' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 2 }}>
+            <span><b>School:</b> {sy?.schoolName || '________'}</span>
+            <span><b>School ID:</b> {sy?.schoolId || '________'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 2 }}>
+            <span><b>Name:</b> {st.lastName}, {st.firstName} {st.middleName || ''}</span>
+            <span><b>Sex:</b> {st.sex === 'M' ? 'Male' : 'Female'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 2 }}>
+            <span><b>Grade & Section:</b> {sy?.gradeLevel} - {sy?.section}</span>
+            <span><b>SY:</b> {sy?.name}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span><b>LRN:</b> {st.lrn || '____________'}</span>
+            <span><b>Age:</b> {computeAge(st.birthdate)}</span>
+          </div>
         </div>
-      </div>
 
-      <div style={ps.sectionTitle}>REPORT ON ATTENDANCE</div>
-      <table style={ps.table}>
-        <thead>
-          <tr>
-            <th style={ps.th}></th>
-            {MONTHS.map(m => <th key={m} style={ps.th}>{m}</th>)}
-            <th style={ps.th}>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...ps.tdLeft, fontWeight: 700, fontSize: '7pt' }}>No. of School Days</td>
-            {MONTHS.map(m => <td key={m} style={ps.td}>{classDays[m] || ''}</td>)}
-            <td style={{ ...ps.td, fontWeight: 700 }}>{totalClassDays || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ ...ps.tdLeft, fontWeight: 700, fontSize: '7pt' }}>No. of Days Present</td>
-            {MONTHS.map(m => <td key={m} style={ps.td}>{attendance[m] || ''}</td>)}
-            <td style={{ ...ps.td, fontWeight: 700 }}>{totalPresent || ''}</td>
-          </tr>
-          <tr>
-            <td style={{ ...ps.tdLeft, fontWeight: 700, fontSize: '7pt' }}>No. of Days Absent</td>
-            {MONTHS.map(m => {
-              const d = (classDays[m] || 0) - (attendance[m] || 0);
-              return <td key={m} style={ps.td}>{d > 0 ? d : ''}</td>;
-            })}
-            <td style={{ ...ps.td, fontWeight: 700 }}>{totalClassDays - totalPresent > 0 ? totalClassDays - totalPresent : ''}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div style={ps.sectionTitle}>LEARNER'S PROGRESS REPORT</div>
-      <table style={ps.table}>
-        <thead>
-          <tr>
-            <th style={{ ...ps.th, textAlign: 'left' }}>Learning Areas</th>
-            <th style={ps.th}>Term 1</th>
-            <th style={ps.th}>Term 2</th>
-            <th style={ps.th}>Term 3</th>
-            <th style={ps.th}>Final Grade</th>
-            <th style={ps.th}>Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          {SUBJECTS_G4_10.map(sub => {
-            const fg = computeFinalGrade(grades, sub);
-            return (
-              <React.Fragment key={sub}>
-                <tr>
-                  <td style={{ ...ps.tdLeft, fontWeight: sub === 'MAPEH' ? 700 : 400 }}>{sub}</td>
-                  {TERMS.map(t => {
-                    const v = sub === 'MAPEH' ? computeMapehTerm(grades, t) : grades[sub]?.[t];
-                    return <td key={t} style={ps.td}>{v ?? ''}</td>;
-                  })}
-                  <td style={{ ...ps.td, fontWeight: 700 }}>{fg ?? ''}</td>
-                  <td style={{ ...ps.td, fontWeight: 600, color: fg != null ? (fg >= 75 ? '#228B22' : '#CC0000') : '#000' }}>{fg != null ? (fg >= 75 ? 'Passed' : 'Failed') : ''}</td>
-                </tr>
-                {sub === 'MAPEH' && MAPEH_SUBS.map(ms => (
-                  <tr key={ms} style={{ background: '#fafafa' }}>
-                    <td style={{ ...ps.tdLeft, paddingLeft: 16, fontSize: '7pt', color: '#555' }}>{ms === 'MA' ? 'Music & Arts' : 'PE & Health'}</td>
-                    {TERMS.map(t => <td key={t} style={{ ...ps.td, color: '#555', fontSize: '7pt' }}>{grades[ms]?.[t] ?? ''}</td>)}
-                    <td style={ps.td}></td><td style={ps.td}></td>
+        {/* Learning Progress Table */}
+        <p style={{ margin: '4px 0 2px', fontWeight: 700, fontSize: '8pt', textAlign: 'center' }}>REPORT ON LEARNING PROGRESS AND ACHIEVEMENT</p>
+        <table style={ps.table}>
+          <thead>
+            <tr>
+              <th style={{ ...ps.th, textAlign: 'left', width: '30%' }}>Learning Areas</th>
+              {TERMS.map(t => <th key={t} style={ps.th}>Q{t}</th>)}
+              <th style={ps.th}>Final Grade</th>
+              <th style={ps.th}>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SUBJECTS_G4_10.map(sub => {
+              const fg = computeFinalGrade(grades, sub);
+              return (
+                <React.Fragment key={sub}>
+                  <tr>
+                    <td style={{ ...ps.tdLeft, fontWeight: sub === 'MAPEH' ? 700 : 400 }}>{sub}</td>
+                    {TERMS.map(t => {
+                      const v = sub === 'MAPEH' ? computeMapehTerm(grades, t) : grades[sub]?.[t];
+                      return <td key={t} style={ps.td}>{v ?? ''}</td>;
+                    })}
+                    <td style={{ ...ps.td, fontWeight: 700 }}>{fg ?? ''}</td>
+                    <td style={{ ...ps.td, fontSize: '6.5pt', fontWeight: 600, color: fg != null ? (fg >= 75 ? '#228B22' : '#CC0000') : '#000' }}>{fg != null ? (fg >= 75 ? 'Passed' : 'Failed') : ''}</td>
                   </tr>
-                ))}
-              </React.Fragment>
-            );
-          })}
-          <tr style={{ background: '#e8e8e8' }}>
-            <td style={{ ...ps.tdLeft, fontWeight: 700 }}>General Average</td>
-            <td colSpan={3} style={ps.td}></td>
-            <td style={{ ...ps.td, fontWeight: 700, fontSize: '10pt' }}>{genAvg ?? ''}</td>
-            <td style={{ ...ps.td, fontWeight: 700, color: genAvg != null ? (genAvg >= 75 ? '#228B22' : '#CC0000') : '#000' }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : ''}</td>
-          </tr>
-        </tbody>
-      </table>
+                  {sub === 'MAPEH' && MAPEH_SUBS.map(ms => (
+                    <tr key={ms} style={{ background: '#fafafa' }}>
+                      <td style={{ ...ps.tdLeft, paddingLeft: 14, fontSize: '6.5pt', color: '#444' }}>{ms === 'MA' ? 'Music & Arts' : 'PE & Health'}</td>
+                      {TERMS.map(t => <td key={t} style={{ ...ps.td, color: '#555', fontSize: '6.5pt' }}>{grades[ms]?.[t] ?? ''}</td>)}
+                      <td style={ps.td}></td><td style={ps.td}></td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+            <tr style={{ background: '#e8e8e8' }}>
+              <td style={{ ...ps.tdLeft, fontWeight: 700 }}>General Average</td>
+              {TERMS.map(t => <td key={t} style={ps.td}></td>)}
+              <td style={{ ...ps.td, fontWeight: 700, fontSize: '9pt' }}>{genAvg ?? ''}</td>
+              <td style={{ ...ps.td, fontWeight: 700, fontSize: '6.5pt', color: genAvg != null ? (genAvg >= 75 ? '#228B22' : '#CC0000') : '#000' }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : ''}</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <div style={ps.sectionTitle}>TEACHER'S COMMENTS</div>
-      {TERMS.map(t => (
-        <div key={t} style={{ marginBottom: 4 }}>
-          <span style={{ fontWeight: 700, fontSize: '8pt' }}>Term {t}: </span>
-          {editComments ? (
-            <input value={comments[t] || ''} onChange={e => onCommentChange(t, e.target.value)}
-              style={{ width: '80%', padding: 3, fontSize: '8pt', border: '1px solid #999', borderRadius: 3 }} />
-          ) : (
-            <span style={{ fontSize: '8pt' }}>{comments[t] || '________________________________________'}</span>
-          )}
-        </div>
-      ))}
+        {/* Descriptors */}
+        <p style={{ margin: '6px 0 2px', fontWeight: 700, fontSize: '7.5pt' }}>Learner's Observed Values</p>
+        <table style={ps.table}>
+          <thead>
+            <tr>
+              <th style={ps.th}>Grading Scale</th>
+              <th style={ps.th}>Descriptor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {DESCRIPTORS.map(d => (
+              <tr key={d.range}>
+                <td style={{ ...ps.td, fontSize: '7pt' }}>{d.range}</td>
+                <td style={{ ...ps.td, fontSize: '7pt' }}>{d.descriptor}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: '8pt' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={ps.sigLine}>{sy?.adviser || ''}</div>
-          <div style={{ fontWeight: 700, marginTop: 2 }}>Class Adviser</div>
+      {/* RIGHT SIDE - Attendance + Comments + Signatures + Certificate */}
+      <div style={{ flex: '1 1 50%', minWidth: 0 }}>
+        {/* Attendance */}
+        <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: '8pt', textAlign: 'center' }}>REPORT ON ATTENDANCE</p>
+        <table style={ps.table}>
+          <thead>
+            <tr>
+              <th style={ps.th}>Month</th>
+              <th style={ps.th}>No. of School Days</th>
+              <th style={ps.th}>No. of Days Present</th>
+              <th style={ps.th}>No. of Days Absent</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MONTHS.map(m => {
+              const days = classDays[m] || 0;
+              const present = attendance[m] || 0;
+              const absent = days - present;
+              return (
+                <tr key={m}>
+                  <td style={{ ...ps.tdLeft, fontWeight: 500, fontSize: '7pt' }}>{m}</td>
+                  <td style={ps.td}>{days || ''}</td>
+                  <td style={ps.td}>{present || ''}</td>
+                  <td style={ps.td}>{absent > 0 ? absent : ''}</td>
+                </tr>
+              );
+            })}
+            <tr style={{ background: '#e8e8e8' }}>
+              <td style={{ ...ps.tdLeft, fontWeight: 700 }}>TOTAL</td>
+              <td style={{ ...ps.td, fontWeight: 700 }}>{totalClassDays || ''}</td>
+              <td style={{ ...ps.td, fontWeight: 700 }}>{totalPresent || ''}</td>
+              <td style={{ ...ps.td, fontWeight: 700 }}>{totalAbsent > 0 ? totalAbsent : ''}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Teacher's Comments */}
+        <p style={{ margin: '8px 0 2px', fontWeight: 700, fontSize: '7.5pt' }}>TEACHER'S COMMENTS</p>
+        <div style={{ border: '1px solid #000', padding: 4, marginBottom: 6 }}>
+          {TERMS.map(t => (
+            <div key={t} style={{ marginBottom: 3, fontSize: '7.5pt' }}>
+              <span style={{ fontWeight: 700 }}>Quarter {t}: </span>
+              {editComments ? (
+                <input value={comments[t] || ''} onChange={e => onCommentChange(t, e.target.value)}
+                  style={{ width: '75%', padding: 2, fontSize: '7.5pt', border: '1px solid #999', borderRadius: 2 }} />
+              ) : (
+                <span>{comments[t] || '________________________________________'}</span>
+              )}
+            </div>
+          ))}
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <div style={ps.sigLine}></div>
-          <div style={{ fontWeight: 700, marginTop: 2 }}>Parent/Guardian</div>
+
+        {/* Signatures */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: '7pt' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={ps.sigLine}>{sy?.adviser || ''}</div>
+            <div style={{ fontWeight: 700, marginTop: 2 }}>Class Adviser</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={ps.sigLine}>{sy?.schoolHead || ''}</div>
+            <div style={{ fontWeight: 700, marginTop: 2 }}>School Head</div>
+          </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <div style={ps.sigLine}>{sy?.schoolHead || ''}</div>
-          <div style={{ fontWeight: 700, marginTop: 2 }}>School Head</div>
+
+        {/* Parent/Guardian Signature */}
+        <p style={{ margin: '10px 0 2px', fontWeight: 700, fontSize: '7.5pt' }}>PARENT/GUARDIAN'S SIGNATURE</p>
+        <table style={ps.table}>
+          <thead>
+            <tr>
+              <th style={ps.th}>Quarter</th>
+              <th style={ps.th}>Signature Over Printed Name</th>
+              <th style={ps.th}>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {TERMS.map(t => (
+              <tr key={t}>
+                <td style={{ ...ps.td, fontSize: '7pt' }}>Q{t}</td>
+                <td style={{ ...ps.td, minWidth: 80, height: 16 }}></td>
+                <td style={{ ...ps.td, minWidth: 50 }}></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Certificate of Transfer */}
+        <div style={{ border: '1px solid #000', padding: '4px 6px', marginTop: 8, fontSize: '7pt' }}>
+          <p style={{ margin: '0 0 3px', fontWeight: 700, fontSize: '7.5pt' }}>CERTIFICATE OF TRANSFER</p>
+          <p style={{ margin: '2px 0' }}>Admitted to Grade _____ Section _____ </p>
+          <p style={{ margin: '2px 0' }}>Eligible for admission to Grade _____</p>
+          <p style={{ margin: '2px 0' }}>Approved:</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={ps.sigLine}></div>
+              <div style={{ fontWeight: 700, marginTop: 2, fontSize: '6.5pt' }}>Principal/School Head</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={ps.sigLine}></div>
+              <div style={{ fontWeight: 700, marginTop: 2, fontSize: '6.5pt' }}>Date</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cancellation of Eligibility */}
+        <div style={{ border: '1px solid #000', padding: '4px 6px', marginTop: 4, fontSize: '7pt' }}>
+          <p style={{ margin: '0 0 3px', fontWeight: 700, fontSize: '7.5pt' }}>CANCELLATION OF ELIGIBILITY TO TRANSFER</p>
+          <p style={{ margin: '2px 0' }}>Admitted to: ______________________________</p>
+          <p style={{ margin: '2px 0' }}>Date: _______________</p>
+          <div style={{ textAlign: 'center', marginTop: 6 }}>
+            <div style={ps.sigLine}></div>
+            <div style={{ fontWeight: 700, marginTop: 2, fontSize: '6.5pt' }}>Principal/School Head</div>
+          </div>
         </div>
       </div>
     </div>
