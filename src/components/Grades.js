@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getSY, getCurrentSY, getStudents, getGrades, setGrade, computeMapehTerm, computeFinalGrade, computeGeneralAvg, computeRanks, SUBJECTS_G4_10, MAPEH_SUBS, TERMS } from '../services/dataService';
 
 const s = {
@@ -28,6 +28,7 @@ function Grades({ onNav }) {
   const [grades, setGrades] = useState({});
   const [term, setTerm] = useState(1);
   const [, setTick] = useState(0);
+  const tableRef = useRef(null);
 
   const reload = () => {
     const id = getCurrentSY();
@@ -35,6 +36,41 @@ function Grades({ onNav }) {
     if (id) { setSy(getSY(id)); setStudents(getStudents(id)); setGrades(getGrades(id)); }
   };
   useEffect(reload, []);
+
+  const navigateInput = useCallback((currentRow, currentCol, direction) => {
+    if (!tableRef.current) return;
+    let nextRow = currentRow;
+    let nextCol = currentCol;
+    if (direction === 'ArrowDown' || direction === 'Enter') nextRow = currentRow + 1;
+    else if (direction === 'ArrowUp') nextRow = currentRow - 1;
+    else if (direction === 'ArrowRight' || direction === 'Tab') nextCol = currentCol + 1;
+    else if (direction === 'ArrowLeft' || direction === 'ShiftTab') nextCol = currentCol - 1;
+
+    let el = tableRef.current.querySelector(`input[data-row="${nextRow}"][data-col="${nextCol}"]`);
+    if (!el && (direction === 'ArrowDown' || direction === 'Enter' || direction === 'Tab' || direction === 'ArrowRight')) {
+      // Wrap: if going down/right past last, try next col first row or stop
+      if (direction === 'ArrowDown' || direction === 'Enter') {
+        el = tableRef.current.querySelector(`input[data-row="0"][data-col="${nextCol}"]`);
+      }
+      if (direction === 'Tab' || direction === 'ArrowRight') {
+        el = tableRef.current.querySelector(`input[data-row="${currentRow + 1}"][data-col="0"]`);
+        if (!el) el = tableRef.current.querySelector(`input[data-row="0"][data-col="0"]`);
+      }
+    }
+    if (el) { el.focus(); el.select(); }
+  }, []);
+
+  const handleKeyDown = useCallback((e) => {
+    const row = parseInt(e.target.dataset.row, 10);
+    const col = parseInt(e.target.dataset.col, 10);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Enter') {
+      e.preventDefault();
+      navigateInput(row, col, e.key);
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      navigateInput(row, col, e.shiftKey ? 'ShiftTab' : 'Tab');
+    }
+  }, [navigateInput]);
 
   if (!syId) return (
     <div style={s.wrap}><div style={s.container}><div style={s.empty}><i className="fas fa-folder-open" style={{ fontSize: 32, color: '#ccc', display: 'block', marginBottom: 12 }} />No school year selected. <button style={s.btn} onClick={() => onNav('schoolyear')}>Go to School Years</button></div></div></div>
@@ -56,30 +92,48 @@ function Grades({ onNav }) {
   const males = students.filter(x => x.sex === 'M');
   const females = students.filter(x => x.sex === 'F');
 
+  // Build ordered list of all students (males first, then females) for row indexing
+  const allStudents = [...males, ...females];
+
   const colHeaders = [];
+  const inputCols = []; // track which colHeaders indices are input (not computed)
   SUBJECTS_G4_10.forEach(sub => {
     if (sub === 'MAPEH') {
-      MAPEH_SUBS.forEach(ms => colHeaders.push({ key: ms, label: ms, isMapehSub: true }));
+      MAPEH_SUBS.forEach(ms => { inputCols.push(colHeaders.length); colHeaders.push({ key: ms, label: ms, isMapehSub: true }); });
       colHeaders.push({ key: 'MAPEH', label: 'MAPEH', computed: true });
     } else {
+      inputCols.push(colHeaders.length);
       colHeaders.push({ key: sub, label: sub });
     }
   });
 
-  const renderRow = (st, idx) => {
+  const renderRow = (st, globalIdx) => {
     const sg = grades[st.id] || {};
     const genAvg = computeGeneralAvg(sg);
+    let inputColIdx = 0;
     return (
-      <tr key={st.id} style={{ background: idx % 2 ? '#fafbfc' : '#fff' }}>
-        <td style={{ ...s.td, textAlign: 'left', fontWeight: 500, whiteSpace: 'nowrap', fontSize: 11, color: '#1a3a5c' }}>{idx + 1}. {st.lastName}, {st.firstName}</td>
+      <tr key={st.id} style={{ background: globalIdx % 2 ? '#fafbfc' : '#fff' }}>
+        <td style={{ ...s.td, textAlign: 'left', fontWeight: 500, whiteSpace: 'nowrap', fontSize: 11, color: '#1a3a5c' }}>{globalIdx + 1}. {st.lastName}, {st.firstName}</td>
         {colHeaders.map(col => {
           if (col.computed) {
             const v = computeMapehTerm(sg, term);
             return <td key={col.key} style={{ ...s.td, ...s.computed }}>{v ?? '\u2014'}</td>;
           }
+          const myColIdx = inputColIdx++;
           return (
             <td key={col.key} style={s.td}>
-              <input style={s.inp} type="number" min="60" max="100" value={sg[col.key]?.[term] ?? ''} onChange={e => handleGrade(st.id, col.key, e.target.value)} />
+              <input
+                style={s.inp}
+                type="number"
+                min="60"
+                max="100"
+                data-row={globalIdx}
+                data-col={myColIdx}
+                value={sg[col.key]?.[term] ?? ''}
+                onChange={e => handleGrade(st.id, col.key, e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={e => e.target.select()}
+              />
             </td>
           );
         })}
@@ -107,7 +161,8 @@ function Grades({ onNav }) {
           <SummaryView students={students} grades={grades} ranks={ranks} males={males} females={females} />
         ) : (
           <div style={s.card}>
-            <div style={{ overflowX: 'auto' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#888' }}><i className="fas fa-keyboard" style={{ marginRight: 4 }} />Use arrow keys, Tab, or Enter to navigate between fields</p>
+            <div style={{ overflowX: 'auto' }} ref={tableRef}>
               <table style={s.table}>
                 <thead>
                   <tr>
@@ -122,7 +177,7 @@ function Grades({ onNav }) {
                   <tr><td colSpan={colHeaders.length + 4} style={{ padding: 0 }}><div style={s.sectionHeader}><i className="fas fa-mars" style={{ marginRight: 6 }} />MALE ({males.length})</div></td></tr>
                   {males.map((st, i) => renderRow(st, i))}
                   <tr><td colSpan={colHeaders.length + 4} style={{ padding: 0 }}><div style={s.sectionHeader}><i className="fas fa-venus" style={{ marginRight: 6 }} />FEMALE ({females.length})</div></td></tr>
-                  {females.map((st, i) => renderRow(st, i))}
+                  {females.map((st, i) => renderRow(st, males.length + i))}
                 </tbody>
               </table>
             </div>
