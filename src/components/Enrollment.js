@@ -78,7 +78,7 @@ function Enrollment({ onNav }) {
     <div style={s.wrap}>
       <div style={s.container}>
         <h1 style={s.title}><i className="fas fa-user-plus" style={{ color: '#e94560', marginRight: 10 }} />Student Enrollment</h1>
-        <p style={s.sub}>SY {sy?.name} â Grade {sy?.gradeLevel} - {sy?.section}</p>
+        <p style={s.sub}>SY {sy?.name}{' \u2014 '}Grade {sy?.gradeLevel} - {sy?.section}</p>
 
         <div style={{ textAlign: 'right', marginBottom: 16 }}>
           <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => { setShowForm(!showForm); setEditId(null); setForm({ ...blankForm }); }}>
@@ -140,10 +140,10 @@ function Enrollment({ onNav }) {
                         <tr key={st.id} style={{ background: i % 2 ? '#fafbfc' : '#fff' }}>
                           <td style={s.td}>{i + 1}</td>
                           <td style={{ ...s.td, fontWeight: 500 }}>{st.lastName}, {st.firstName} {st.middleName || ''}</td>
-                          <td style={s.td}>{st.lrn || 'â'}</td>
+                          <td style={s.td}>{st.lrn || '\u2014'}</td>
                           <td style={s.td}><span style={s.sexBadge(st.sex)}>{st.sex}</span></td>
-                          <td style={s.td}>{st.birthdate || 'â'}</td>
-                          <td style={s.td}>{computeAge(st.birthdate) || 'â'}</td>
+                          <td style={s.td}>{st.birthdate || '\u2014'}</td>
+                          <td style={s.td}>{computeAge(st.birthdate) || '\u2014'}</td>
                           <td style={s.td}>
                             <button style={{ ...s.btn, ...s.btnSmall, color: '#2e7dbd', background: '#e8f4fd', marginRight: 4 }} onClick={() => handleEdit(st)}><i className="fas fa-pen" style={{ marginRight: 4 }} />Edit</button>
                             <button style={{ ...s.btn, ...s.btnSmall, color: '#dc3545', background: '#fde8ea' }} onClick={() => handleRemove(st.id)}><i className="fas fa-trash" style={{ marginRight: 4 }} />Remove</button>
