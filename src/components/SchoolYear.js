@@ -130,7 +130,7 @@ function SchoolYear({ onNav }) {
                 {sy.id === current && <span style={{ ...s.badge, marginLeft: 8 }}>ACTIVE</span>}
               </div>
               <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
-                {sy.schoolName || 'No school name'} Â· {sy.students.length} student{sy.students.length !== 1 ? 's' : ''}
+                {sy.schoolName || 'No school name'} {'Â·'} {sy.students.length} student{sy.students.length !== 1 ? 's' : ''}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
