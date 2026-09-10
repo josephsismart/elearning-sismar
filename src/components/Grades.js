@@ -58,7 +58,7 @@ function Grades({ onNav }) {
 
   const colHeaders = [];
   SUBJECTS_G4_10.forEach(sub => {
-    if (sub === 'MAPE(') {
+    if (sub === 'MAPEH') {
       MAPEH_SUBS.forEach(ms => colHeaders.push({ key: ms, label: ms, isMapehSub: true }));
       colHeaders.push({ key: 'MAPEH', label: 'MAPEH', computed: true });
     } else {
@@ -75,7 +75,7 @@ function Grades({ onNav }) {
         {colHeaders.map(col => {
           if (col.computed) {
             const v = computeMapehTerm(sg, term);
-            return <td key={col.key} style={{ ...s.td, ...s.computed }}>{v ?? 'â'}</td>;
+            return <td key={col.key} style={{ ...s.td, ...s.computed }}>{v ?? '\u2014'}</td>;
           }
           return (
             <td key={col.key} style={s.td}>
@@ -83,9 +83,9 @@ function Grades({ onNav }) {
             </td>
           );
         })}
-        <td style={{ ...s.td, ...s.computed }}>{genAvg ?? 'â'}</td>
-        <td style={{ ...s.td, ...(genAvg != null ? (genAvg >= 75 ? s.pass : s.fail) : {}) }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : 'â'}</td>
-        <td style={{ ...s.td, ...s.computed }}>{ranks[st.id] != null ? ranks[st.id] % 1 === 0 ? ranks[st.id] : ranks[st.id].toFixed(1) : 'â'}</td>
+        <td style={{ ...s.td, ...s.computed }}>{genAvg ?? '\u2014'}</td>
+        <td style={{ ...s.td, ...(genAvg != null ? (genAvg >= 75 ? s.pass : s.fail) : {}) }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : '\u2014'}</td>
+        <td style={{ ...s.td, ...s.computed }}>{ranks[st.id] != null ? ranks[st.id] % 1 === 0 ? ranks[st.id] : ranks[st.id].toFixed(1) : '\u2014'}</td>
       </tr>
     );
   };
@@ -94,7 +94,7 @@ function Grades({ onNav }) {
     <div style={s.wrap}>
       <div style={s.container}>
         <h1 style={s.title}><i className="fas fa-chart-simple" style={{ color: '#e94560', marginRight: 10 }} />Grades</h1>
-        <p style={s.sub}>SY {sy?.name} â Grade {sy?.gradeLevel} - {sy?.section}</p>
+        <p style={s.sub}>SY {sy?.name}{' \u2014 '}Grade {sy?.gradeLevel} - {sy?.section}</p>
 
         <div style={s.tabs}>
           {TERMS.map(t => <button key={t} style={s.tab(term === t)} onClick={() => { setTerm(t); reload(); }}><i className="fas fa-pen" style={{ marginRight: 6 }} />Term {t}</button>)}
@@ -142,11 +142,11 @@ function SummaryView({ students, grades, ranks, males, females }) {
         <td style={{ ...s.td, textAlign: 'left', fontWeight: 500, whiteSpace: 'nowrap', fontSize: 11, color: '#1a3a5c' }}>{idx + 1}. {st.lastName}, {st.firstName}</td>
         {SUBJECTS_G4_10.map(sub => {
           const fg = computeFinalGrade(sg, sub);
-          return <td key={sub} style={{ ...s.td, fontWeight: 500 }}>{fg ?? 'â'}</td>;
+          return <td key={sub} style={{ ...s.td, fontWeight: 500 }}>{fg ?? '\u2014'}</td>;
         })}
-        <td style={{ ...s.td, ...s.computed }}>{genAvg ?? 'â'}</td>
-        <td style={{ ...s.td, ...(genAvg != null ? (genAvg >= 75 ? s.pass : s.fail) : {}) }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : 'â'}</td>
-        <td style={{ ...s.td, ...s.computed }}>{ranks[st.id] != null ? ranks[st.id] % 1 === 0 ? ranks[st.id] : ranks[st.id].toFixed(1) : 'â'}</td>
+        <td style={{ ...s.td, ...s.computed }}>{genAvg ?? '\u2014'}</td>
+        <td style={{ ...s.td, ...(genAvg != null ? (genAvg >= 75 ? s.pass : s.fail) : {}) }}>{genAvg != null ? (genAvg >= 75 ? 'Passed' : 'Failed') : '\u2014'}</td>
+        <td style={{ ...s.td, ...s.computed }}>{ranks[st.id] != null ? ranks[st.id] % 1 === 0 ? ranks[st.id] : ranks[st.id].toFixed(1) : '\u2014'}</td>
       </tr>
     );
   };
