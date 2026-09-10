@@ -68,7 +68,7 @@ function AttendanceSF9({ onNav }) {
     <div style={s.wrap}>
       <div style={s.container}>
         <h1 style={s.title}><i className="fas fa-clipboard-check" style={{ color: '#e94560', marginRight: 10 }} />Attendance Record</h1>
-        <p style={s.sub}>SY {sy?.name} â Grade {sy?.gradeLevel} - {sy?.section}</p>
+        <p style={s.sub}>SY {sy?.name}{' \u2014 '}Grade {sy?.gradeLevel} - {sy?.section}</p>
 
         {students.length === 0 ? (
           <div style={s.empty}><i className="fas fa-user-slash" style={{ fontSize: 32, color: '#ccc', display: 'block', marginBottom: 12 }} />No students enrolled. <button style={s.btn} onClick={() => onNav('enrollment')}>Enroll Students</button></div>
@@ -91,7 +91,7 @@ function AttendanceSF9({ onNav }) {
                       </td>
                     ))}
                     <td style={{ ...s.td, ...s.totalCell }}>{totalClassDays()}</td>
-                    <td style={s.td}>â</td>
+                    <td style={s.td}>{' \u2014 '}</td>
                   </tr>
                 </thead>
                 <tbody>
