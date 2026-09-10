@@ -126,7 +126,7 @@ function SchoolYear({ onNav }) {
             <div>
               <div style={{ fontWeight: 600, fontSize: 16, color: '#1a3a5c' }}>
                 <i className="fas fa-graduation-cap" style={{ color: '#e94560', marginRight: 8 }} />
-                SY {sy.name} â Grade {sy.gradeLevel} - {sy.section}
+                SY {sy.name}{' \u2014 '}Grade {sy.gradeLevel} - {sy.section}
                 {sy.id === current && <span style={{ ...s.badge, marginLeft: 8 }}>ACTIVE</span>}
               </div>
               <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
