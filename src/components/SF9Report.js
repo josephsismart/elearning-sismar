@@ -90,7 +90,7 @@ function SF9Report({ onNav }) {
     <div style={ws.wrap}>
       <div style={ws.container}>
         <h1 style={ws.title}><i className="fas fa-file-lines" style={{ color: '#e94560', marginRight: 10 }} />SF9 Report Card</h1>
-        <p style={ws.sub}>SY {sy?.name} â Grade {sy?.gradeLevel} - {sy?.section}</p>
+        <p style={ws.sub}>SY {sy?.name}{' \u2014 '}Grade {sy?.gradeLevel} - {sy?.section}</p>
 
         <div style={ws.controls}>
           <select style={ws.select} value={selectedId || ''} onChange={e => setSelectedId(e.target.value || null)}>
@@ -127,7 +127,7 @@ function ReportCard({ student, sy, grades, attendance, classDays, comments, edit
       <div style={ps.header}>
         <p style={ps.headerLine}>Republic of the Philippines</p>
         <p style={ps.headerLine}>Department of Education</p>
-        <p style={ps.headerLine}>{sy?.region || 'Region'} â {sy?.division || 'Division'}</p>
+        <p style={ps.headerLine}>{sy?.region || 'Region'}{' \u2014 '}{sy?.division || 'Division'}</p>
         <p style={ps.headerLine}>{sy?.district || 'District'}</p>
         <p style={ps.schoolName}>{sy?.schoolName || 'School Name'}</p>
         <p style={{ ...ps.headerLine, fontSize: '7pt' }}>School ID: {sy?.schoolId || '______'}</p>
