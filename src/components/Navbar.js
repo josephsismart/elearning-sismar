@@ -43,6 +43,7 @@ function Navbar({ current, onNav }) {
         @media (max-width: 768px) {
           .nb-links { display: ${menuOpen ? 'flex' : 'none'} !important; flex-direction: column; position: absolute; top: 60px; left: 0; right: 0; background: #fff; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 99; }
           .nb-hamburger { display: block !important; }
+          .nb-link { width: 100%; text-align: left !important; padding: 10px 14px !important; }
         }
       `}</style>
       <nav style={nav}>
