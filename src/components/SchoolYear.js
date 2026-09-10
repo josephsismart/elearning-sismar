@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSchoolYears, createSchoolYear, selectSchoolYear, deleteSchoolYear, getCurrentSY, GRADE_LEVELS } from '../services/dataService';
+import { getSchoolYears, createSchoolYear, selectSchoolYear, deleteSchoolYear, getCurrentSY, updateSYInfo, GRADE_LEVELS } from '../services/dataService';
 
 const s = {
   wrap: { minHeight: '100vh', background: '#f5f7fa', padding: '32px 16px', fontFamily: 'Poppins, sans-serif', color: '#333' },
@@ -16,7 +16,7 @@ const s = {
   btnOutline: { background: 'transparent', color: '#e94560', border: '1px solid #e94560' },
   btnDanger: { background: 'transparent', color: '#dc3545', border: '1px solid #dc3545' },
   btnSmall: { padding: '6px 14px', fontSize: 12 },
-  syItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: 10, background: '#fafbfc', marginBottom: 8, border: '1px solid #e0e0e0', flexWrap: 'wrap', gap: 8 },
+  syItem: { display: 'flex', flexDirection: 'column', padding: '14px 16px', borderRadius: 10, background: '#fafbfc', marginBottom: 8, border: '1px solid #e0e0e0', gap: 0 },
   syActive: { border: '2px solid #e94560', background: '#fef2f4' },
   badge: { background: '#e94560', color: '#fff', fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 600 },
   empty: { textAlign: 'center', padding: 40, color: '#999', fontSize: 15 },
@@ -27,6 +27,8 @@ function SchoolYear({ onNav }) {
   const [current, setCurrent] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', schoolName: '', region: '', division: '', city: '', district: '', schoolId: '', schoolHead: '', adviser: '', gradeLevel: 7, section: '' });
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const reload = () => { setYears(getSchoolYears()); setCurrent(getCurrentSY()); };
   useEffect(reload, []);
@@ -42,6 +44,8 @@ function SchoolYear({ onNav }) {
 
   const handleSelect = (id) => { selectSchoolYear(id); reload(); if (onNav) onNav('enrollment'); };
   const handleDelete = (id) => { if (window.confirm('Delete this school year and all its data?')) { deleteSchoolYear(id); reload(); } };
+  const startEdit = (sy) => { setEditingId(sy.id); setEditForm({ gradeLevel: sy.gradeLevel, section: sy.section, schoolName: sy.schoolName || '', region: sy.region || '', division: sy.division || '', city: sy.city || '', district: sy.district || '', schoolId: sy.schoolId || '', schoolHead: sy.schoolHead || '', adviser: sy.adviser || '' }); };
+  const saveEdit = () => { updateSYInfo(editingId, { ...editForm, gradeLevel: Number(editForm.gradeLevel) }); setEditingId(null); reload(); };
 
   return (
     <div style={s.wrap}>
@@ -123,22 +127,64 @@ function SchoolYear({ onNav }) {
 
         {years.map(sy => (
           <div key={sy.id} style={{ ...s.syItem, ...(sy.id === current ? s.syActive : {}) }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 16, color: '#1a3a5c' }}>
-                <i className="fas fa-graduation-cap" style={{ color: '#e94560', marginRight: 8 }} />
-                SY {sy.name}{' \u2014 '}Grade {sy.gradeLevel} - {sy.section}
-                {sy.id === current && <span style={{ ...s.badge, marginLeft: 8 }}>ACTIVE</span>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: 8 }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 16, color: '#1a3a5c' }}>
+                  <i className="fas fa-graduation-cap" style={{ color: '#e94560', marginRight: 8 }} />
+                  SY {sy.name} {'â'} Grade {sy.gradeLevel} - {sy.section}
+                  {sy.id === current && <span style={{ ...s.badge, marginLeft: 8 }}>ACTIVE</span>}
+                </div>
+                <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
+                  {sy.schoolName || 'No school name'} {'Â·'} {sy.students.length} student{sy.students.length !== 1 ? 's' : ''}
+                </div>
               </div>
-              <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
-                {sy.schoolName || 'No school name'} {'Â·'} {sy.students.length} student{sy.students.length !== 1 ? 's' : ''}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button style={{ ...s.btn, ...s.btnOutline, ...s.btnSmall }} onClick={() => editingId === sy.id ? setEditingId(null) : startEdit(sy)}>
+                  <i className={editingId === sy.id ? 'fas fa-xmark' : 'fas fa-pen'} style={{ marginRight: 4 }} />{editingId === sy.id ? 'Cancel' : 'Edit'}
+                </button>
+                <button style={{ ...s.btn, ...s.btnPrimary, ...s.btnSmall }} onClick={() => handleSelect(sy.id)}>
+                  <i className="fas fa-arrow-right" style={{ marginRight: 4 }} />Select & Enroll
+                </button>
+                <button style={{ ...s.btn, ...s.btnDanger, ...s.btnSmall }} onClick={() => handleDelete(sy.id)}><i className="fas fa-trash" style={{ marginRight: 4 }} />Delete</button>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button style={{ ...s.btn, ...s.btnPrimary, ...s.btnSmall }} onClick={() => handleSelect(sy.id)}>
-                <i className="fas fa-arrow-right" style={{ marginRight: 4 }} />Select & Enroll
-              </button>
-              <button style={{ ...s.btn, ...s.btnDanger, ...s.btnSmall }} onClick={() => handleDelete(sy.id)}><i className="fas fa-trash" style={{ marginRight: 4 }} />Delete</button>
-            </div>
+            {editingId === sy.id && (
+              <div style={{ width: '100%', marginTop: 8, padding: '12px 0 0', borderTop: '1px solid #e0e0e0' }}>
+                <div style={s.row}>
+                  <div style={s.col}>
+                    <label style={s.label}>Grade Level</label>
+                    <select style={s.select} value={editForm.gradeLevel} onChange={e => setEditForm({ ...editForm, gradeLevel: e.target.value })}>
+                      {GRADE_LEVELS.map(g => <option key={g} value={g}>Grade {g}</option>)}
+                    </select>
+                  </div>
+                  <div style={s.col}>
+                    <label style={s.label}>Section</label>
+                    <input style={s.input} value={editForm.section} onChange={e => setEditForm({ ...editForm, section: e.target.value })} />
+                  </div>
+                  <div style={s.col}>
+                    <label style={s.label}>School Name</label>
+                    <input style={s.input} value={editForm.schoolName} onChange={e => setEditForm({ ...editForm, schoolName: e.target.value })} />
+                  </div>
+                </div>
+                <div style={s.row}>
+                  <div style={s.col}>
+                    <label style={s.label}>Region</label>
+                    <input style={s.input} value={editForm.region} onChange={e => setEditForm({ ...editForm, region: e.target.value })} />
+                  </div>
+                  <div style={s.col}>
+                    <label style={s.label}>Division</label>
+                    <input style={s.input} value={editForm.division} onChange={e => setEditForm({ ...editForm, division: e.target.value })} />
+                  </div>
+                  <div style={s.col}>
+                    <label style={s.label}>Adviser</label>
+                    <input style={s.input} value={editForm.adviser} onChange={e => setEditForm({ ...editForm, adviser: e.target.value })} />
+                  </div>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                  <button style={{ ...s.btn, ...s.btnPrimary, ...s.btnSmall }} onClick={saveEdit}><i className="fas fa-check" style={{ marginRight: 4 }} />Save Changes</button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
