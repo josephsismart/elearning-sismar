@@ -8,7 +8,7 @@ const s = {
   sub: { textAlign: 'center', color: '#888', fontSize: 14, marginBottom: 16 },
   card: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 16, border: '1px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' },
   tabs: { display: 'flex', gap: 4, marginBottom: 16, flexWrap: 'wrap' },
-  tab: (active) => ({ padding: '8px 18px', borderRadius: 8, border: 'none', fontWeight: active ? 600 : 400, fontSize: 13, cursor: 'pointer', fontFamily: 'Poppins, sans-serif', background: active ? '#e94560' : '#fff', color: active ? '#fff' : '#555', boxShadow: active ? 'none' : '0 1px 3px rgba(0,0,0,0.08)', border: active ? 'none' : '1px solid #e0e0e0' }),
+  tab: (active) => ({ padding: '8px 18px', borderRadius: 8, fontWeight: active ? 600 : 400, fontSize: 13, cursor: 'pointer', fontFamily: 'Poppins, sans-serif', background: active ? '#e94560' : '#fff', color: active ? '#fff' : '#555', boxShadow: active ? 'none' : '0 1px 3px rgba(0,0,0,0.08)', border: active ? 'none' : '1px solid #e0e0e0' }),
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { padding: '8px 4px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', color: '#888', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3 },
   td: { padding: '4px 2px', borderBottom: '1px solid #f0f0f0', textAlign: 'center' },
